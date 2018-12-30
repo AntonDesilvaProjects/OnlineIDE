@@ -10,7 +10,8 @@ Ext.define('OnlineIDE.view.editor.CodeEditor',{
 			mode : 'ace/mode/java',
 			enableLiveAutocompletion : true,
 			readOnly : false
-		}
+		},
+		initialValue : ''
 	},
 	constructor : function( config )
 	{
@@ -30,14 +31,15 @@ Ext.define('OnlineIDE.view.editor.CodeEditor',{
 		var me = this;
 		me.callParent(arguments); //do normal post rendering activities
 		//configure the editor
-		me.configureCodeEditor( me.config.editorConfig );
+		me.configureCodeEditor( me.config );
 	},
 	configureCodeEditor : function( config )
 	{
 		var me = this;
 		var editor = me.getCodeEditor();
 		var editorNode = Ext.getDom( me.getCodeEditorId() ); 
-		editor.setOptions( config );
+		editor.setOptions( config.editorConfig );
+		editor.getSession().setValue( config.initialValue );
 	},
 	getCodeEditor: function()
 	{

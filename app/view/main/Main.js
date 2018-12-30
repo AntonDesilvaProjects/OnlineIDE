@@ -4,9 +4,9 @@ Ext.define('OnlineIDE.view.main.Main', {
     requires: [
         'OnlineIDE.view.main.MainController',
         'OnlineIDE.view.main.MainModel',
-        'OnlineIDE.view.editor.CodeEditor',
         'OnlineIDE.view.toolbar.MainToolBar',
-        'OnlineIDE.model.viewmodel.ProjectExplorerViewModel'
+        'OnlineIDE.view.navigator.ProjectExplorer',
+        'OnlineIDE.view.editor.EditorTabPanel'
     ],
     controller: 'main',
     viewModel: 'main',
@@ -35,11 +35,8 @@ Ext.define('OnlineIDE.view.main.Main', {
             ]
         },
         {
-            xtype : 'codeEditor',
-            region : 'center',
-            editorConfig : {
-
-            }
+            xtype : 'editorTabPanel',
+            region : 'center'
         },
         {
             xtype : 'panel',
