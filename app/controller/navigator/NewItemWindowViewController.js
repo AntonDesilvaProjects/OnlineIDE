@@ -2,6 +2,13 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 	extend : 'Ext.app.ViewController',
 	alias : 'controller.newItemWindowViewController',
 	requires : [],
+	listen : {
+		controller : {
+			'*' : {
+				showNewItemWindow : 'onShowNewItemWindow'
+			}
+		}
+	},
 	init : function()
 	{
 		this.projectExplorer = Ext.ComponentQuery.query('projectExplorer')[0];
@@ -9,12 +16,13 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 	/*--------------------------------------------------------------------------
 								Event Handlers
 	---------------------------------------------------------------------------*/
-	onItemNameTextChange : function( textfield, newValue, oldValue, eOpts )
+	onItemTypeChange : function( combo, newValue, oldValue, eOpts )
 	{
+		if( Ext.isEmpty(newValue) )
+			return;
 
-	},
-	onItemTypeSelect : function( combo, record, eOpts )
-	{
+		var record = combo.findRecordByValue( newValue );
+
 		var itemDetailCombo = this.lookupReference('itemDetailCombo');
 		var itemProjectCombo = this.lookupReference('itemProjectCombo');
 		var itemPackageCombo = this.lookupReference('itemPackageCombo');
@@ -39,8 +47,12 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 			this.manageCombo( itemPackageCombo, false, false, true );
 		}
 	},
-	onItemProjectSelect : function( combo, record, eOpts )
+	onItemProjectChange : function( combo, newValue, oldValue, eOpts )
 	{
+		if( Ext.isEmpty(newValue) )
+			return;
+
+		var record = combo.findRecordByDisplay( newValue );		
 		//load the packages under the project
 		var itemPackageCombo = this.lookupReference('itemPackageCombo');
 		itemPackageCombo.clearValue();
@@ -61,13 +73,20 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 		}).then( function( response ){
 			var responseObj = Ext.JSON.decode( response.responseText, true );
 			//reload the project navigator
-			me.fireEvent('refreshProjectExplorer', responseObj.itemId );
 			//auto select the item on the navigator
 			//if file, automatically open it
+			me.fireEvent('refreshProjectExplorer', responseObj.itemId );
 			me.getView().close();
 		}, function(){
-
+			Ext.Msg.alert("Error", "Unable to create "+ form.getValues().itemType + " at this time. Please try again later!");
 		});
+	},
+	onShowNewItemWindow : function( dataToPreload )
+	{
+		debugger;
+		var me = this;
+		me.getView().preloadData( dataToPreload );
+		me.getView().show();
 	},
 	/*--------------------------------------------------------------------------
 								Helper functions

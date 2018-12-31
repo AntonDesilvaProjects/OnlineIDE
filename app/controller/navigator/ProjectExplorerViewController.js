@@ -13,6 +13,9 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 	{
 
 	},
+	/*----------------------------------------------------------------
+							Event Handlers
+	------------------------------------------------------------------*/
 	onProjectExplorerRefresh : function( nodeId )
 	{
 		this.getView().refresh( nodeId );
@@ -24,16 +27,20 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 	},
 	onExplorerItemDblClick : function( explorer, record, item, index, e, eOpts )
 	{
-		this.openFile( record );
+		this.openFiles( record );
 	},
 	onExplorerItemRightClick : function( explorer, record, item, index, e, eOpts)
 	{
-		console.log( record );
 		e.stopEvent();
+		this.generateContextMenu( record, e.getXY() );
+	},
+	onExplorerRightClick : function( explorer, e, eOpts )
+	{
+		e.stopEvent();
+		this.generateContextMenu( null, e.getXY() );
 	},
 	onProjectExplorerStoreLoad : function( store, records )
 	{
-		//debugger;
 		var me = this;
 		var vm = me.getViewModel();
 		var view = me.getView();
@@ -44,13 +51,89 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 			if(!Ext.isEmpty(node))
 			{
 				view.setSelection(node);
-				me.openFile(node);
+				me.openFiles(node);
 				view.expandPath( node.getPath() );
 			}
 			vm.set('nodeIdToAutoSelect', undefined );
 		}
 	},
-	openFile : function( fileNode )
+	onExplorerContextMenuClick : function( menu, item, e, eOpts )
+	{
+		console.log( eOpts );
+		debugger;
+		if( ['newProject', 'newPackage', 'newFile'].includes( item.action ) )
+		{
+			//launch the new item dialog by firing event
+			this.fireEvent( 'showNewItemWindow', { itemType : 'File'} );
+		}
+	},
+	/*----------------------------------------------------------------
+							Helper Functions
+	------------------------------------------------------------------*/
+	generateContextMenu : function( record, position )
+	{
+		var me = this;
+		var menuItems = this.getContextMenuItems( record );
+		if( !this.explorerContextMenu)
+			this.explorerContextMenu = Ext.widget('menu', {
+				listeners : {
+					click : function( menu, item, e, eOpts ){
+						eOpts['record'] = record;
+						me.onExplorerContextMenuClick( menu, item, e, eOpts );	
+					},
+					scope : me
+				}
+			});
+		else
+			this.explorerContextMenu.removeAll();
+
+		this.explorerContextMenu.add(menuItems);
+		this.explorerContextMenu.showAt( position );
+		
+		return this.explorerContextMenu;
+	},
+	getContextMenuItems : function( record )
+	{
+		var itemType = record ? record.get('nodeType') : null;
+		var menuItems = [];
+
+		if( itemType === 'file' )
+		{
+			menuItems.push( 
+				{ text : 'Rename', action : 'rename' },
+				{ text : 'Remove', action : 'delete' },
+				{ text : 'About', action : 'about'}
+			);
+		}
+		else if( itemType === 'project' )
+		{
+			menuItems.push( 
+				{ text : 'Rename', action : 'rename' },
+				{ text : 'Remove', action : 'delete' },
+				{ text : 'New Package', action : 'newPackage'},
+				{ text : 'New File', action : 'newFile'},
+				{ text : 'About', action : 'about'}
+			);
+		}
+		else if( itemType === 'package' )
+		{
+			menuItems.push(
+				{ text : 'Rename', action : 'rename' },
+				{ text : 'Remove', action : 'delete' }, 
+				{ text : 'New File', action : 'newFile'},
+				{ text : 'About', action : 'about'}
+			);
+		}
+		else //click on the explorer itself
+		{
+			menuItems.push(
+				{ text : 'New Package', action : 'newPackage'},
+				{ text : 'New File', action : 'newFile'}
+			);
+		}
+		return menuItems;
+	},
+	openFiles : function( fileNode )
 	{
 		if( fileNode.get('nodeType') === 'file')
 		{

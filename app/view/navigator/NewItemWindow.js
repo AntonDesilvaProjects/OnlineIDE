@@ -63,7 +63,7 @@ Ext.define('OnlineIDE.view.navigator.NewItemWindow', {
 				value : '{item}'
 			},
 			listeners : {
-				select : 'onItemTypeSelect'
+				change : 'onItemTypeChange'
 			}
 		});
 
@@ -107,10 +107,11 @@ Ext.define('OnlineIDE.view.navigator.NewItemWindow', {
 						type : 'json',
 						rootProperty : 'projects'
 					}
-				}
+				},
+				autoLoad : true
 			},
 			listeners : {
-				select : 'onItemProjectSelect'
+				change : 'onItemProjectChange'
 			}
 		});
 		
@@ -144,9 +145,6 @@ Ext.define('OnlineIDE.view.navigator.NewItemWindow', {
 			},
 			reference : 'itemName',
 			enableKeyEvents : true,
-			listeners : {
-				change : 'onItemNameTextChange'
-			},
 			validator : function( val )
 			{
 				var validationRes = me.getController().isValidItemName( val );
@@ -187,6 +185,16 @@ Ext.define('OnlineIDE.view.navigator.NewItemWindow', {
 			} 
 		];
 		me.callParent( arguments );
+	},
+	preloadData : function( data )
+	{
+		var record = {
+			getData : function()
+			{
+				return data;
+			}
+		};
+		this.down('form').loadRecord( record );
 	},
 	getProjects : function()
 	{

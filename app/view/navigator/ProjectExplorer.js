@@ -15,8 +15,11 @@ Ext.define('OnlineIDE.view.navigator.ProjectExplorer',{
 	listeners : {
 		itemclick : 'onExplorerItemClick',
 		itemdblclick : 'onExplorerItemDblClick',
-		itemcontextmenu : 'onExplorerItemRightClick'
+		itemcontextmenu : 'onExplorerItemRightClick',
+		containercontextmenu : 'onExplorerRightClick'
 	},
+	border : 1,
+	height : 700,
 	initComponent : function()
 	{
 		var me = this;
@@ -30,6 +33,13 @@ Ext.define('OnlineIDE.view.navigator.ProjectExplorer',{
 		];
 		me.callParent( arguments );
 	},
+	/*
+		Refreshes the project explorer and automatically selects and open the passed 
+		in node
+
+		TODO: nodeToSelect - one id
+			  nodesToOpen - an array of node ids to open in the editor
+	*/
 	refresh : function( nodeId )
 	{
 		var me = this;
