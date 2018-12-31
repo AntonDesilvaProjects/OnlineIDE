@@ -5,20 +5,27 @@ Ext.define('OnlineIDE.controller.toolbar.MainToolBarViewController',{
 		'OnlineIDE.view.navigator.SettingsWindow',
 		'OnlineIDE.view.navigator.NewItemWindow'
 	],
+	listen : {
+		controller : {
+			'*' : {
+				showNewItemWindow : 'onShowNewItemWindow'
+			}
+		}
+	},
 	init : function()
 	{
 		this.newItemWindow = undefined;
 	},
+	onShowNewItemWindow : function( preConfigData )
+	{
+		var newItemWindow = this.generateNewItemWindow();
+		newItemWindow.show();
+		newItemWindow.preloadData( preConfigData );
+	},
 	onNewBtnClick : function()
 	{
-		if( this.newItemWindow === undefined )
-		{
-			this.newItemWindow = Ext.widget('newItemWindow',{
-				width : 600,
-				height : 325
-			});
-		}
-		this.newItemWindow.show();
+		var newItemWindow = this.generateNewItemWindow();
+		newItemWindow.show();
 	},
 	onSettingsClick : function()
 	{
@@ -39,5 +46,16 @@ Ext.define('OnlineIDE.controller.toolbar.MainToolBarViewController',{
 	onRunProjectClick : function()
 	{
 
+	},
+	generateNewItemWindow : function()
+	{
+		if( this.newItemWindow === undefined )
+		{
+			this.newItemWindow = Ext.widget('newItemWindow',{
+				width : 600,
+				height : 325
+			});
+		}
+		return this.newItemWindow;
 	}
 });

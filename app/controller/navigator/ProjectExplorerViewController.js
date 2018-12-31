@@ -32,6 +32,7 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 	onExplorerItemRightClick : function( explorer, record, item, index, e, eOpts)
 	{
 		e.stopEvent();
+		console.log( record );
 		this.generateContextMenu( record, e.getXY() );
 	},
 	onExplorerRightClick : function( explorer, e, eOpts )
@@ -57,14 +58,47 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 			vm.set('nodeIdToAutoSelect', undefined );
 		}
 	},
+	/*
+		This is a generic event handler that gets called when any context menu within
+		the project explorer is clicked
+	*/
 	onExplorerContextMenuClick : function( menu, item, e, eOpts )
 	{
-		console.log( eOpts );
-		debugger;
+		var record = menu.clickedRecord;
+		console.log( this.getAncestorNodes( record ) );
+		var recordType = Ext.isEmpty( record ) ? 'explorer' : record.get('nodeType');
+
+		//handle menu options for creating new items
 		if( ['newProject', 'newPackage', 'newFile'].includes( item.action ) )
 		{
+			//based on the context, generate a data object to pass into the new item window
+			//this info will be used to pre-populate the window
+			var preconfigData = {};
+			if( recordType === 'project' )
+				preconfigData['inProject'] = record.get('nodeId');
+			else if ( recordType === 'package' )
+			{
+				preconfigData['inProject'] = record.parentNode.get('nodeId');
+				preconfigData['inPackage'] = record.get('nodeId');
+			}
+
+			//TODO: we can also figure out the item detail based on the clicked on project or package
+			//but the node should have the item detail infor available
+
+			if( item.action === 'newFile' )
+			{
+				preconfigData['itemType'] = 'File';
+				preconfigData['itemName'] = 'NewFile-' + Math.floor(Math.random() * 1000000) + 1; 
+				preconfigData['itemDetail'] = 'Java';
+			}
+			else if( item.action === 'newProject' )
+				preconfigData['itemType'] = 'Project';
+			else if( item.action === 'newPackage' )
+				preconfigData['itemType'] = 'Package';
+
+			console.log( preconfigData );
 			//launch the new item dialog by firing event
-			this.fireEvent( 'showNewItemWindow', { itemType : 'File'} );
+			this.fireEvent( 'showNewItemWindow', preconfigData );
 		}
 	},
 	/*----------------------------------------------------------------
@@ -77,16 +111,14 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 		if( !this.explorerContextMenu)
 			this.explorerContextMenu = Ext.widget('menu', {
 				listeners : {
-					click : function( menu, item, e, eOpts ){
-						eOpts['record'] = record;
-						me.onExplorerContextMenuClick( menu, item, e, eOpts );	
-					},
+					click : me.onExplorerContextMenuClick,
 					scope : me
 				}
 			});
 		else
 			this.explorerContextMenu.removeAll();
 
+		this.explorerContextMenu.clickedRecord = record;
 		this.explorerContextMenu.add(menuItems);
 		this.explorerContextMenu.showAt( position );
 		
@@ -179,5 +211,27 @@ Ext.define('OnlineIDE.controller.navigator.ProjectExplorerViewController',{
 		if( !Ext.isEmpty( rootNode ) )
 			result = Ext.isEmpty( nodeType ) ? rootNode.childNodes : Ext.Array.filter( rootNode.childNodes, function( childNode, idx ) { return childNode.get('nodeType') === nodeType; });
 		return result;
+	},
+	/*
+		Returns a list of all ancestor nodes to a supplied node. First node of the list will be the parent followed by
+		the grandparent, then the great-grandparent and so on. The last element would always be the root node
+
+		@return array of Node objects; an empty list would indicate that a valid node is the root
+	*/
+	getAncestorNodes : function( node )
+	{
+		console.log( 'Node plugged into getAncestorNodes', node );
+		var me = this;
+		var ancestorList = [];
+		if( !Ext.isEmpty(node) )
+		{
+			var currentAncestor = node.parentNode;
+			while( !Ext.isEmpty(currentAncestor) )
+			{
+				ancestorList.push( currentAncestor );
+				currentAncestor = currentAncestor.parentNode;
+			}
+		}
+		return ancestorList;
 	}
 });

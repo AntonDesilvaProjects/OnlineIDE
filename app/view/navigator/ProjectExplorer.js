@@ -38,7 +38,7 @@ Ext.define('OnlineIDE.view.navigator.ProjectExplorer',{
 		in node
 
 		TODO: nodeToSelect - one id
-			  nodesToOpen - an array of node ids to open in the editor
+			  nodesToOpen - an array of node ids to open in the editor; t
 	*/
 	refresh : function( nodeId )
 	{

@@ -5,7 +5,6 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 	listen : {
 		controller : {
 			'*' : {
-				showNewItemWindow : 'onShowNewItemWindow'
 			}
 		}
 	},
@@ -16,6 +15,10 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 	/*--------------------------------------------------------------------------
 								Event Handlers
 	---------------------------------------------------------------------------*/
+	onNewItemWindowShow : function( newItemWindow )
+	{
+		newItemWindow.down('form').reset();
+	},
 	onItemTypeChange : function( combo, newValue, oldValue, eOpts )
 	{
 		if( Ext.isEmpty(newValue) )
@@ -52,7 +55,7 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 		if( Ext.isEmpty(newValue) )
 			return;
 
-		var record = combo.findRecordByDisplay( newValue );		
+		var record = combo.findRecordByValue( newValue );		
 		//load the packages under the project
 		var itemPackageCombo = this.lookupReference('itemPackageCombo');
 		itemPackageCombo.clearValue();
@@ -80,13 +83,6 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 		}, function(){
 			Ext.Msg.alert("Error", "Unable to create "+ form.getValues().itemType + " at this time. Please try again later!");
 		});
-	},
-	onShowNewItemWindow : function( dataToPreload )
-	{
-		debugger;
-		var me = this;
-		me.getView().preloadData( dataToPreload );
-		me.getView().show();
 	},
 	/*--------------------------------------------------------------------------
 								Helper functions

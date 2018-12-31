@@ -37,6 +37,9 @@ Ext.define('OnlineIDE.view.navigator.NewItemWindow', {
 	referenceHolder : true,
 	resizable : false,
 	title : 'Create New Item',
+	listeners : {
+		show : 'onNewItemWindowShow'
+	},
 	initComponent : function()
 	{
 		var me = this;
@@ -194,7 +197,10 @@ Ext.define('OnlineIDE.view.navigator.NewItemWindow', {
 				return data;
 			}
 		};
-		this.down('form').loadRecord( record );
+		console.log( 'Record', record );
+		var form = this.down('form')
+		form.reset();
+		form.loadRecord( record );
 	},
 	getProjects : function()
 	{
