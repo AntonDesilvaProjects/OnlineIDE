@@ -40,6 +40,8 @@ Ext.define('OnlineIDE.view.editor.CodeEditor',{
 		var editorNode = Ext.getDom( me.getCodeEditorId() ); 
 		editor.setOptions( config.editorConfig );
 		editor.getSession().setValue( config.initialValue );
+		//set up event handlers
+		editor.getSession().on('change', me.onEditorContentChange.bind(me) );
 	},
 	getCodeEditor: function()
 	{
@@ -60,5 +62,13 @@ Ext.define('OnlineIDE.view.editor.CodeEditor',{
 		var htmlStr = '<div id="{0}" style="margin: 0;position: absolute;top: 0; bottom: 0;left: 0;right: 0;"></div>';
 		htmlStr = Ext.String.format( htmlStr, me.getCodeEditorId() );
 		return htmlStr;
+	},
+	getEditorContent : function()
+	{
+		return this.getCodeEditor().getSession().getValue();
+	},
+	onEditorContentChange : function( delta )
+	{
+		this.fireEvent('change', this, delta, {});
 	}
 });
