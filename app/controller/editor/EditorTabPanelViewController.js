@@ -26,17 +26,31 @@ Ext.define('OnlineIDE.controller.editor.EditorTabPanelViewController',{
 	*/
 	onExplorerFileOpen : function( editorConfig )
 	{
-		//create editor object with initial config and add to the editor
-		var newEditor = Ext.widget('codeEditor', {
-			title : editorConfig.fileName,
-			closable : true,
-			fileId : editorConfig.fileId
-		});
-		this.getView().addEditor( newEditor, true );
-		newEditor.mask('Loading...');
+		var codeEditorPanel = this.getView();
+		var newEditor = null;
+		//if file is already open, refresh the content, and auto focus on that
+		//tab; otherwise, create new editor
+		newEditor = codeEditorPanel.getEditor( editorConfig.fileId );
+		var maskText = null;
+		if(newEditor)
+		{
+			codeEditorPanel.focusEditor( editorConfig.fileId );
+			maskText = 'Refreshing...';
+		}
+		else
+		{
+			newEditor = Ext.widget('codeEditor', {
+				title : editorConfig.fileName,
+				closable : true,
+				fileId : editorConfig.fileId
+			});
+			codeEditorPanel.addEditor( newEditor, true );
+			maskText = 'Loading...';
+		}
+		newEditor.mask( maskText);
 
 		Ext.Ajax.request({
-			url : '/static_data/file.json',
+			url : 'http://localhost:3000/rest/editor',
 			method : 'GET',
 			params : {
 				fileId : editorConfig.fileId
@@ -44,15 +58,18 @@ Ext.define('OnlineIDE.controller.editor.EditorTabPanelViewController',{
 			success : function( response ) {
 				var responseObj = Ext.JSON.decode( response.responseText, true );
 				console.log( responseObj );
-				var editor = newEditor.getCodeEditor(); 
-				editor.getSession().setValue( responseObj.content );
-				editor.resize();
-				//configure the new editor with data from server
-				//unmask
-				newEditor.unmask();
+				if( responseObj )
+				{
+					var editor = newEditor.getCodeEditor(); 
+					editor.getSession().setValue( responseObj.response.fileContent || '' );
+					editor.resize();
+					//configure the new editor with data from server
+					//unmask
+					newEditor.unmask();
+				}
 			},
 			failure : function() {
-				
+				newEditor.unmask();	
 			},
 		});
 	},
@@ -69,9 +86,9 @@ Ext.define('OnlineIDE.controller.editor.EditorTabPanelViewController',{
 	saveEditorContent : function( fileId, fileContent )
 	{
 		Ext.Ajax.request({
-			url : '/static_data/success.json',
+			url : 'http://localhost:3000/rest/editor',
 			method : 'POST',
-			params : {
+			jsonData : {
 				fileId : fileId,
 				fileContent : fileContent
 			}

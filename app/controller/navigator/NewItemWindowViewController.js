@@ -59,7 +59,9 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 		//load the packages under the project
 		var itemPackageCombo = this.lookupReference('itemPackageCombo');
 		itemPackageCombo.clearValue();
-		itemPackageCombo.getStore().loadRawData( this.getView().getPackagesForProject( record.get('value') ) );
+		var recordValue = record.get('value');
+		var packages = this.getView().getPackagesForProject( recordValue );
+		itemPackageCombo.getStore().loadRawData( packages );
 	},
 	onCreateBtnClick : function( btn )
 	{
@@ -69,17 +71,24 @@ Ext.define('OnlineIDE.controller.navigator.NewItemWindowViewController',{
 		var form = this.lookupReference('newItemForm');
 		console.log( form.getValues() );
 
+		var jsonData = form.getValues();
+		jsonData['itemType'] = Ext.util.Format.lowercase( jsonData.itemType );
+
 		Ext.Ajax.request({
-			url : '/static_data/success.json',	
+			url : 'http://localhost:3000/rest/projectExplorer',
+			//url : '/static_data/success.json',	
 			method : 'POST',
-			params : form.getValues()
+			jsonData : jsonData
 		}).then( function( response ){
 			var responseObj = Ext.JSON.decode( response.responseText, true );
-			//reload the project navigator
-			//auto select the item on the navigator
-			//if file, automatically open it
-			me.fireEvent('refreshProjectExplorer', responseObj.itemId );
-			me.getView().close();
+			if( responseObj )
+			{
+				//reload the project navigator
+				//auto select the item on the navigator
+				//if file, automatically open it
+				me.fireEvent('refreshProjectExplorer', responseObj.response.itemId );
+				me.getView().close();
+			}
 		}, function(){
 			Ext.Msg.alert("Error", "Unable to create "+ form.getValues().itemType + " at this time. Please try again later!");
 		});

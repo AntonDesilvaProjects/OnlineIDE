@@ -24,6 +24,7 @@ Ext.define('OnlineIDE.view.main.Main', {
             width : 300,
             title : 'Navigator',
             collapsible : true,
+            border : 1,
             layout : {
                 type : 'vbox',
                 align : 'stretch'

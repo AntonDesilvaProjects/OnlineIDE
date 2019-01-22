@@ -53,19 +53,19 @@ Ext.define('OnlineIDE.config.NewItemConfig',{
 				config.options.push(
 					{
 						name : 'Java',
-						value : '/ace/mode/java'
+						value : '.java'
 					},
 					{
 						name : 'JavaScript',
-						value : '/ace/mode/javascript'
+						value : '.js'
 					},
 					{
 						name : 'SQL',
-						value : '/ace/mode/sql'
+						value : '.sql'
 					},
 					{
 						name : 'TEXT',
-						value : '/ace/mode/txt'
+						value : '.txt'
 					}
 				)
 			}

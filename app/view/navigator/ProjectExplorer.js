@@ -19,7 +19,9 @@ Ext.define('OnlineIDE.view.navigator.ProjectExplorer',{
 		containercontextmenu : 'onExplorerRightClick'
 	},
 	border : 1,
-	height : 700,
+	height : '100%',
+	header : false,
+	autoScroll : true,
 	initComponent : function()
 	{
 		var me = this;

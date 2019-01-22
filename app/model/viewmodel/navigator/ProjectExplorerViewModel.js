@@ -15,7 +15,8 @@ Ext.define('OnlineIDE.model.viewmodel.navigator.ProjectExplorerViewModel', {
 			model : 'OnlineIDE.model.navigator.ProjectExplorerNodeModel',
 			proxy : {
 				type : 'ajax',
-				url : '/static_data/projectExplorer.json',
+				//url : '/static_data/projectExplorer.json',
+				url : 'http://localhost:3000/rest/projectExplorer',
 				reader : {
 					type : 'json',
 					rootProperty : 'children'
